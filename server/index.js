@@ -8,15 +8,17 @@ const Article = require('./models/Article')
 require('dotenv').config();
 
 const wellnessTopics = [
-  "Health",
   "Obesity",
   "Diabetes",
   "Yoga",
+  "Calisthenics",
   "HeartHealth",
-  "Healthy Foods",
-  "Hygiene",
+  "MedicalResearch",
+  "CancerCare",
+  "HealthyFood",
+  "WomensHealth",
   "Vitamins",
-  "Workout",
+  "PublicHealth",
   "Diet",
 ];
 
@@ -33,35 +35,13 @@ function shuffleArray(array) {
   return array;
 }
 
-// app.get('/generate',async(req,res)=>{
-//   try {
+// end point to clear DB
+app.get('/delete',async(req,res)=>{
+  const resp  =await Article.deleteMany()
+  res.json({success:true})
+})
 
-//     for (const topic of wellnessTopics) {
-//       try {
-//         const resp = await axios.get(`https://newsapi.org/v2/everything`, {
-//           params: {
-//               q: topic,
-//               apiKey: process.env.API_KEY,
-//               language: 'en'  
-//           }
-//       });
-//         const data = resp.data.articles; 
-        
-//         arr.push(...data); 
-  
-//         console.log(`Fetched articles for topic: ${topic}`);
-//       } catch (error) {
-//         console.error(`Error fetching topic ${topic}:`, error.message);
-//       }
-//     }
-    
-//     arr = shuffleArray(arr)
-//     res.json({data:arr})
-//   } catch (error) {
-//     res.json({error: error})
-//   }
-// })
-
+// function for NEWS api call returning array of Articles
 const getArticles = async()=>{
   try {
     var arr = [];
@@ -70,14 +50,14 @@ const getArticles = async()=>{
         const resp = await axios.get(`https://newsapi.org/v2/everything`, {
           params: {
               q: topic,
-              pageSize: 15,
+              pageSize: 20,
               apiKey: process.env.API_KEY,
               language: 'en'  
           }
       });
         const data = resp.data.articles; 
         arr.push(...data); 
-        console.log(`Fetched articles for topic: ${topic}`);
+        // console.log(`Fetched articles for topic: ${topic}`);
       } catch (error) {
         console.error(`Error fetching topic ${topic}:`, error.message);
       }
@@ -90,43 +70,50 @@ const getArticles = async()=>{
   }
 }
 
+// endpoint for testing NEWS api call
 app.get('/callapi',async(req,res)=>{
   try {
     const arr = await getArticles();
-    console.log(arr);
+    res.json({data:arr});
   } catch (error) {
     console.log(error);
   }
 })
 
+// endpoint for getting articles stored at DB
 app.get('/',async(req,res)=>{
   try {
+
     const art1 = await Article.findOne();
-    const currentTime = new Date(); 
+    var hours = 0;
 
-    const diffInMilliseconds = currentTime - art1.storeTime;
-    const SEC = 1000;
-    const MIN = 60*SEC;
-    const HRS = 60*MIN;
+    // if articles exist on DB check their time of creation
+    if(art1!= null)
+    {
+      const currentTime = new Date(); 
+      const diffInMilliseconds = currentTime - art1.storeTime;
+      const SEC = 1000;
+      const MIN = 60*SEC;
+      const HRS = 60*MIN;
 
-    const hours = Math.floor(diffInMilliseconds/HRS);
-    const minutes = Math.floor((diffInMilliseconds % HRS) / MIN);
-    const seconds = Math.floor((diffInMilliseconds % MIN) / SEC);
+      hours = Math.floor(diffInMilliseconds/HRS);
+      const minutes = Math.floor((diffInMilliseconds % HRS) / MIN);
+      const seconds = Math.floor((diffInMilliseconds % MIN) / SEC);
 
-    // Format the result
-    const formattedDiff = `${Math.abs(hours)} hours, ${Math.abs(minutes)} minutes, ${Math.abs(seconds)} seconds`;
-    console.log(`Difference: ${formattedDiff}`);
-
+      const formattedDiff = `${Math.abs(hours)} hours, ${Math.abs(minutes)} minutes, ${Math.abs(seconds)} seconds`;
+      console.log(`Difference: ${formattedDiff}`);
+    }
+    
+    // IF ARTICLES DO NOT EXIST, OR ARE MORE THAN 24HRS OLD, RECALL THE API AND STORE FRESH DATA IN DB
     if(art1 == null || Math.abs(hours)>=24)
     {
-      await Articles.deleteMany();
+      await Article.deleteMany();
 
-      // var p = getArticles(); // real API call 
-      var p = x.message; // static data for testing
+      var p = await getArticles(); // real API call 
+      // var p = x.message; // static data for testing
+     
       for(const i of p)
       {
-        // console.log(i.source.name)
-
         const art = {};
         art.source = i.source.name;
         art.author = i.author;
@@ -140,12 +127,15 @@ app.get('/',async(req,res)=>{
         await Article.create(art);
       }
     }
+
+    const art_50 = await Article.find().limit(50);
     
-    res.json({success:true,message:p}); // static data for testing
+    res.json({success:true,message:art_50}); // static data for testing
   } catch (error) {
     console.log(error);
   }
 })
+
 
 app.listen(5001, () => {
     console.log(`App running at 5001`);

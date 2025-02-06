@@ -15,23 +15,11 @@ const ArticleSchema = new mongoose.Schema({
     },
     url: {
         type: String,
-        default: null, // Default value set to null
-        validate: {
-            validator: function(v) {
-                return /^(http|https):\/\/[^ "]+$/.test(v); // Basic URL validation
-            },
-            message: props => `${props.value} is not a valid URL!`
-        }
+        default: null, // Default value set to nul
     },
     image: { // Changed from urlToImage to image
         type: String,
         default: null, // Default value set to null
-        validate: {
-            validator: function(v) {
-                return /^(http|https):\/\/[^ "]+$/.test(v); // Basic URL validation
-            },
-            message: props => `${props.value} is not a valid image URL!`
-        }
     },
     publishedAt: {
         type: Date,
