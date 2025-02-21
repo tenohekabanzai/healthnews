@@ -10,15 +10,16 @@ require('dotenv').config();
 const wellnessTopics = [
   "Obesity",
   "Diabetes",
-  "Yoga",
-  "Calisthenics",
+  "Gym",
+  "Fitness",
+  "Surgery",
+  "Protein",
   "HeartHealth",
   "MedicalResearch",
   "CancerCare",
   "HealthyFood",
   "WomensHealth",
   "Vitamins",
-  "PublicHealth",
   "Diet",
 ];
 
