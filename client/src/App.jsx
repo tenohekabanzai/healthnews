@@ -36,6 +36,7 @@ function App() {
               className="w-full h-32 object-cover mb-3 rounded-md"
             />
             <h2 className="text-xl font-semibold text-green-700 mb-3">{card.title}</h2>
+            <p className="text-sm font-medium text-green-600 mb-2">{card.category}</p>
             <p className="text-gray-700">{card.description}</p>
             <p className="text-gray-600">{card.author}</p>
 

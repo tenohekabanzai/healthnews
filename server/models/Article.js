@@ -13,6 +13,10 @@ const ArticleSchema = new mongoose.Schema({
         type: String,
         default: null // Default value set to null
     },
+    category : {
+        type: String,
+        default : null
+    },
     url: {
         type: String,
         default: null, // Default value set to nul

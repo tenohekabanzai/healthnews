@@ -56,7 +56,13 @@ const getArticles = async()=>{
           }
       });
         const data = resp.data.articles; 
-        arr.push(...data); 
+         
+        const modifiedData = data.map(article => ({
+          ...article,             // Spread existing object properties
+          category: topic   // Add new field
+        }));
+
+        arr.push(...modifiedData);
         // console.log(`Fetched articles for topic: ${topic}`);
       } catch (error) {
         console.error(`Error fetching topic ${topic}:`, error.message);
@@ -119,6 +125,7 @@ app.get('/',async(req,res)=>{
         art.author = i.author;
         art.title = i.title;
         art.description = i.description;
+        art.category = i.category;
         art.url = i.url;
         art.image =  i.urlToImage;
         art.publishedAt = i.publishedAt;
